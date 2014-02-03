@@ -150,7 +150,7 @@ didStartElement:(NSString *)elementName
 	
 	[req setValue:[NSString stringWithFormat:@"Bearer %@", rt] forHTTPHeaderField:@"Authorization"];
 
-	[req setValue:[NSString stringWithFormat:@"Bearer %@", rt] forHTTPHeaderField:@"content-length"];
+	[req setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"content-length"];
 	[req setValue:sid forHTTPHeaderField:@"box-obj-sid"];
 	[req setValue:uniqid forHTTPHeaderField:@"box-obj-parentuniqid"];
 	[req setValue:@"ybtest.txt" forHTTPHeaderField:@"box-obj-filename"];
