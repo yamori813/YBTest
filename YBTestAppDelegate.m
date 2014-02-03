@@ -134,7 +134,7 @@ didStartElement:(NSString *)elementName
 	
 	if((int)pos.location != -1) {
 		NSString *rdurl = [urlstr substringToIndex:pos.location];
-		if([rdurl isEqualToString:@"http://developer.yahoo.co.jp/start/"] == YES) {
+		if([rdurl isEqualToString:YJDN_CALLBACK] == YES) {
 			NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
 			[nc removeObserver:self
 						  name:WebViewProgressEstimateChangedNotification
