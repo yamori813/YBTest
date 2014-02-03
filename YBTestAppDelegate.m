@@ -6,6 +6,8 @@
 //  Copyright 2014 Hiroki Mori. All rights reserved.
 //
 
+#import <CommonCrypto/CommonDigest.h>
+
 #import "YBTestAppDelegate.h"
 
 #include "json.h"
@@ -14,6 +16,19 @@
 
 @synthesize window;
 @synthesize view;
+
+- (NSString*)md5:(NSData *)dat
+{
+    unsigned char result[CC_MD5_DIGEST_LENGTH];
+    CC_MD5( dat.bytes, dat.length, result ); // This is the md5 call
+    return [NSString stringWithFormat:
+			@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+			result[0], result[1], result[2], result[3], 
+			result[4], result[5], result[6], result[7],
+			result[8], result[9], result[10], result[11],
+			result[12], result[13], result[14], result[15]
+			];  
+}
 
 - (void)parserDidStartDocument:(NSXMLParser *)parser
 {
@@ -123,6 +138,38 @@ didStartElement:(NSString *)elementName
 	NSLog(@"%@", [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding]);	
 }
 
+- (void)upload:(NSString *)rt sid:(NSString *)sid uniqid:(NSString *)uniqid
+{
+	// http://developer.yahoo.co.jp/webapi/box/box/v1/upload.html
+	NSURL *url = [NSURL URLWithString:@"https://upload.ybox.yahooapis.jp/v1/upload"];
+	
+	NSString *str = @"upad test";
+	NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
+	
+	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
+	
+	[req setValue:[NSString stringWithFormat:@"Bearer %@", rt] forHTTPHeaderField:@"Authorization"];
+
+	[req setValue:[NSString stringWithFormat:@"Bearer %@", rt] forHTTPHeaderField:@"content-length"];
+	[req setValue:sid forHTTPHeaderField:@"box-obj-sid"];
+	[req setValue:uniqid forHTTPHeaderField:@"box-obj-parentuniqid"];
+	[req setValue:@"ybtest.txt" forHTTPHeaderField:@"box-obj-filename"];
+	[req setValue:[self md5:data] forHTTPHeaderField:@"box-obj-md5"];
+	
+	[req setHTTPMethod:@"POST"];
+	[req setHTTPBody:data];
+	
+	NSURLResponse *resp;
+	
+	NSError *err;
+	
+	NSData *result = [NSURLConnection sendSynchronousRequest:req
+										   returningResponse:&resp
+													   error:&err];
+	
+	NSLog(@"%@", [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding]);	
+}
+
 - (void)processNotification:(NSNotification *)notification
 {
 	
@@ -160,6 +207,8 @@ didStartElement:(NSString *)elementName
 	NSString *userid = [self userinfo:[dict objectForKey:@"access_token"]];
 	[self fullinfo:[dict objectForKey:@"access_token"] userid:userid];
 	[self filelist:[dict objectForKey:@"access_token"]
+			   sid:Sid uniqid:RootUniqId];
+	[self upload:[dict objectForKey:@"access_token"]
 			   sid:Sid uniqid:RootUniqId];
 }
 
