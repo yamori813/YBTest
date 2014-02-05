@@ -14,6 +14,7 @@
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		F5B8F6F9189941DC00FDF20B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5B8F6F8189941DC00FDF20B /* WebKit.framework */; };
 		F5BD376C189A4F8200ABB911 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5BD376B189A4F8200ABB911 /* CoreFoundation.framework */; };
+		F5C2599218A2762F00125AF8 /* Base64EncDec.m in Sources */ = {isa = PBXBuildFile; fileRef = F5C2599118A2762F00125AF8 /* Base64EncDec.m */; };
 		F5FD70BC189A918E005C52C6 /* arraylist.c in Sources */ = {isa = PBXBuildFile; fileRef = F5FD70AA189A918D005C52C6 /* arraylist.c */; };
 		F5FD70BD189A918E005C52C6 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = F5FD70AE189A918E005C52C6 /* debug.c */; };
 		F5FD70BE189A918E005C52C6 /* json_object.c in Sources */ = {isa = PBXBuildFile; fileRef = F5FD70B1189A918E005C52C6 /* json_object.c */; };
@@ -38,6 +39,8 @@
 		8D1107320486CEB800E47090 /* YBTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YBTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5B8F6F8189941DC00FDF20B /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
 		F5BD376B189A4F8200ABB911 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		F5C2599018A2762F00125AF8 /* Base64EncDec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64EncDec.h; sourceTree = "<group>"; };
+		F5C2599118A2762F00125AF8 /* Base64EncDec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64EncDec.m; sourceTree = "<group>"; };
 		F5FD70AA189A918D005C52C6 /* arraylist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = arraylist.c; path = "json-c/arraylist.c"; sourceTree = "<group>"; };
 		F5FD70AB189A918E005C52C6 /* arraylist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arraylist.h; path = "json-c/arraylist.h"; sourceTree = "<group>"; };
 		F5FD70AC189A918E005C52C6 /* bits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bits.h; path = "json-c/bits.h"; sourceTree = "<group>"; };
@@ -75,6 +78,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				F5C2599018A2762F00125AF8 /* Base64EncDec.h */,
+				F5C2599118A2762F00125AF8 /* Base64EncDec.m */,
 				256AC3D80F4B6AC300CF3369 /* YBTestAppDelegate.h */,
 				256AC3D90F4B6AC300CF3369 /* YBTestAppDelegate.m */,
 			);
@@ -246,6 +251,7 @@
 				F5FD70C0189A918E005C52C6 /* json_util.c in Sources */,
 				F5FD70C1189A918E005C52C6 /* linkhash.c in Sources */,
 				F5FD70C2189A918E005C52C6 /* printbuf.c in Sources */,
+				F5C2599218A2762F00125AF8 /* Base64EncDec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

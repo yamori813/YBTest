@@ -8,9 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
-#import <CoreFoundation/CFURL.h>
 
+#define USE_IMPLICIT 0
+
+#if USE_IMPLICIT
 #define YJDN_APPID @"Please get your own appid on YJDN site"
+#else
+#define YJDN_APPID @"Please get your own appid on YJDN site"
+#define YJDN_SECRET @"Please get your own secret on YJDN site"
+#endif
 #define YJDN_CALLBACK @"http://developer.yahoo.co.jp/start/"
 
 @interface YBTestAppDelegate : NSObject <NSApplicationDelegate, NSXMLParserDelegate> {
