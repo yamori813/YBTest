@@ -11,6 +11,7 @@
 #import "YBTestAppDelegate.h"
 
 #include "json.h"
+#import "Base64EncDec.h"
 
 @implementation YBTestAppDelegate
 
@@ -60,6 +61,62 @@ didStartElement:(NSString *)elementName
 		RootUniqId = [NSString stringWithString:xmlcont];
 	}
 }
+
+#if !(USE_IMPLICIT)
+- (NSString *)token:(NSString *)code
+{
+	NSString *rdurl = YJDN_CALLBACK;
+
+	// http://developer.yahoo.co.jp/yconnect/server_app/explicit/token.html
+	
+	NSURL *url = [NSURL URLWithString:@"https://auth.login.yahoo.co.jp/yconnect/v1/token"];
+	
+	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
+	
+	NSString *applicationId = YJDN_APPID;
+	NSString *secret = YJDN_SECRET;
+	
+	NSString *authstr = [NSString stringWithFormat:@"%@:%@", applicationId, secret];
+	NSData *authdat = [authstr dataUsingEncoding:NSUTF8StringEncoding];
+	[req setValue:[NSString stringWithFormat:@"Basic %@", [authdat stringEncodedWithBase64]] forHTTPHeaderField:@"Authorization"];
+	[req setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+	
+	NSString *rdenc = (NSString *)CFURLCreateStringByAddingPercentEscapes(
+																		   kCFAllocatorDefault,
+																		   (CFStringRef)rdurl,
+																		   NULL,
+																		   CFSTR(":/?#[]@!$&'()*,+;="),
+																		   kCFStringEncodingUTF8 );
+	NSString *param = [NSString stringWithFormat:@"grant_type=authorization_code&code=%@&redirect_uri=%@",
+					   code, rdenc, applicationId];
+	NSLog(@"%@", [NSString stringWithFormat:@"Basic %@", [authdat stringEncodedWithBase64]]);
+	NSLog(@"%@", param);
+	[req setHTTPMethod:@"POST"];
+	NSData *data = [param dataUsingEncoding:NSUTF8StringEncoding];
+	[req setHTTPBody:data];
+
+	NSURLResponse *resp;
+	
+	NSError *err;
+	
+	NSData *result = [NSURLConnection sendSynchronousRequest:req
+										   returningResponse:&resp
+													   error:&err];
+	
+	NSString *resstr = [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
+	NSLog(@"%@", resstr);
+	
+	struct json_tokener* tok;
+	struct json_object *new_obj;
+	tok = json_tokener_new();
+	new_obj = json_tokener_parse_ex(tok, [resstr UTF8String], [resstr length]);
+	//	printf("new_obj.to_string()=%s\n", json_object_to_json_string(new_obj));
+	struct json_object *j_id = json_object_object_get(new_obj,"access_token");
+	NSLog(@"%s",json_object_to_json_string(j_id));
+	NSString *userid = [NSString stringWithCString:json_object_to_json_string(j_id) encoding:NSUTF8StringEncoding];
+	return [userid substringWithRange:NSMakeRange(1, [userid length] - 2)];
+}
+#endif
 
 - (NSString *)userinfo:(NSString *)rt
 {
@@ -177,8 +234,12 @@ didStartElement:(NSString *)elementName
 	
 	NSString *urlstr = [wv mainFrameURL];
 	NSLog(@"%@", urlstr);
+#if USE_IMPLICIT
 	NSRange pos = [urlstr rangeOfString:@"#"];
-	
+#else
+	NSRange pos = [urlstr rangeOfString:@"?"];
+#endif
+
 	if((int)pos.location != -1) {
 		NSString *rdurl = [urlstr substringToIndex:pos.location];
 		if([rdurl isEqualToString:YJDN_CALLBACK] == YES) {
@@ -186,6 +247,8 @@ didStartElement:(NSString *)elementName
 			[nc removeObserver:self
 						  name:WebViewProgressEstimateChangedNotification
 						object:nil];
+		} else {
+			return;
 		}
 	} else {
 		return;
@@ -203,13 +266,17 @@ didStartElement:(NSString *)elementName
 		
         [dict setObject:val forKey:key];
     }
+	NSLog(@"%@", dict);
+#if USE_IMPLICIT
+	NSString *at = [dict objectForKey:@"access_token"];
+#else
+	NSString *at = [self token:[dict objectForKey:@"code"]];
+#endif
 	
-	NSString *userid = [self userinfo:[dict objectForKey:@"access_token"]];
-	[self fullinfo:[dict objectForKey:@"access_token"] userid:userid];
-	[self filelist:[dict objectForKey:@"access_token"]
-			   sid:Sid uniqid:RootUniqId];
-	[self upload:[dict objectForKey:@"access_token"]
-			   sid:Sid uniqid:RootUniqId];
+	NSString *userid = [self userinfo:at];	
+	[self fullinfo:at userid:userid];
+	[self filelist:at sid:Sid uniqid:RootUniqId];
+//	[self upload:at sid:Sid uniqid:RootUniqId];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -226,7 +293,11 @@ didStartElement:(NSString *)elementName
 
 	NSMutableDictionary *param = [[NSMutableDictionary alloc] init];
 	[param setObject:@"touch" forKey:@"display"];
+#if USE_IMPLICIT
 	[param setObject:@"token+id_token" forKey:@"response_type"];
+#else
+	[param setObject:@"code+id_token" forKey:@"response_type"];
+#endif
 	[param setObject:appid forKey:@"client_id"];
 	[param setObject:state forKey:@"state"];
 //	[param setObject:@"simple" forKey:@"display"];
